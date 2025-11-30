@@ -12,9 +12,9 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<div class="min-h-screen bg-gray-100 text-gray-900 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100">
+<div class="flex min-h-screen flex-col bg-gray-100 text-gray-900 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100">
 	<Navbar />
-	<main class="container mx-auto p-4">
+	<main class="container mx-auto p-4 grow ">
 		{@render children()}
 	</main>
 	<footer class="p-4 flex justify-end">
