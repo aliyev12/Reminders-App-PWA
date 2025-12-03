@@ -1,0 +1,97 @@
+<script lang="ts">
+	import type { PageData } from './$types';
+	import { superForm } from 'sveltekit-superforms/client';
+	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
+	import DatePicker from '$lib/components/reminders/DatePicker.svelte';
+
+	export let data: PageData;
+
+	const {
+		form: formData,
+		errors,
+		enhance,
+		message,
+		submitting,
+		constraints
+	} = superForm(data.form, {
+		taintedMessage: true,
+		dataType: 'json'
+	});
+	console.log('message  ', $message);
+	$: isSubmitting = $submitting;
+</script>
+
+<div class="flex flex-col items-center pt-4">
+	<h1 class="mb-5 text-3xl">Add a new reminder</h1>
+
+	{#if $message}
+		<div
+			class="mb-4 rounded-lg p-3 font-semibold text-white"
+			class:bg-green-500={$message.includes('Successfully')}
+			class:bg-red-500={!$message.includes('Successfully')}
+		>
+			{$message}
+		</div>
+	{/if}
+
+	<form method="POST" use:enhance class="w-full space-y-4">
+		<div class="max-w-lg space-y-4">
+			<div>
+				<label for="title" class="mb-2 block text-sm font-medium dark:text-white">Title</label>
+				<div class="relative">
+					<input
+						type="text"
+						id="title"
+						name="title"
+						class="block w-full rounded-lg border-red-500 px-4 py-2.5 focus:border-red-500 focus:ring-red-500 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400"
+						bind:value={$formData.title}
+						aria-invalid={$errors.title ? 'true' : undefined}
+						aria-describedby="title"
+						{...$constraints.title}
+					/>
+					{#if $errors.title}
+						<div class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3">
+							<svg
+								class="size-4 shrink-0 text-red-500"
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<circle cx="12" cy="12" r="10"></circle>
+								<line x1="12" x2="12" y1="8" y2="12"></line>
+								<line x1="12" x2="12.01" y1="16" y2="16"></line>
+							</svg>
+						</div>
+					{/if}
+				</div>
+				{#if $errors.title}
+					<p class="mt-2 text-sm text-red-600" id="hs-validation-name-error-helper">
+						{$errors.title}
+					</p>
+				{/if}
+			</div>
+		</div>
+
+		<DatePicker />
+
+		<button class="btn-primary" type="submit" disabled={isSubmitting}>
+			{#if isSubmitting}
+				Submitting
+			{:else}
+				Create
+			{/if}
+		</button>
+	</form>
+
+	<!-- Optional: Display the internal form state for debugging -->
+	<div class="mt-8 border-t border-gray-100 pt-4">
+		<h3 class="mb-2 text-lg font-semibold">Form Debugger</h3>
+		<SuperDebug data={$formData} />
+	</div>
+</div>
