@@ -8,6 +8,18 @@ const ReminderModeSchema = z.object({
 	address: z.string().describe('Contact address')
 });
 
+const LocationSchema = z.object({
+	addressLine1: z
+		.string()
+		.min(1, 'Address Line 1 is required')
+		.describe('First line of the address'),
+	addressLine2: z.string().optional().describe('Second line of the address'),
+	city: z.string().min(1, 'City is required').describe('City of the address'),
+	state: z.string().min(1, 'State is required').describe('State of the address'),
+	postalCode: z.string().min(1, 'Postal Code is required').describe('Postal code of the address'),
+	country: z.string().min(1, 'Country is required').describe('Country of the address')
+});
+
 export const ReminderBaseSchema = z.object({
 	title: z.string().min(3, 'Title is required').describe('Title of the reminder'),
 	date: z
