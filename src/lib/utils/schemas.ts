@@ -21,7 +21,11 @@ const LocationSchema = z.object({
 });
 
 export const ReminderBaseSchema = z.object({
-	title: z.string().min(3, 'Title is required').describe('Title of the reminder'),
+	title: z
+		.string()
+		.min(3, 'Title is required')
+		.email('must be an email...')
+		.describe('Title of the reminder'),
 	date: z
 		.string()
 		.describe(
