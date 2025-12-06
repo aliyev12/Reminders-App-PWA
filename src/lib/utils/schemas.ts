@@ -44,7 +44,7 @@ export const ReminderBaseSchema = z.object({
 		.describe('List of alert times in milliseconds before the reminder'),
 	is_recurring: z
 		.boolean()
-		.default(false)
+		// .default(false)
 		.optional()
 		.describe('Indicates if the reminder is recurring'),
 	recurrence: z

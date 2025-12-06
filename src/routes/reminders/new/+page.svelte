@@ -18,6 +18,8 @@
 	});
 
 	let localDateString: string | undefined = $formData.date?.substring(0, 16) ?? undefined;
+	let localStartDateString: string | undefined =
+		$formData.start_date?.substring(0, 16) ?? undefined;
 
 	$: {
 		if (localDateString) {
@@ -26,9 +28,16 @@
 		} else {
 			$formData.date = '';
 		}
+		if (localStartDateString) {
+			const date = new Date(localStartDateString);
+			$formData.start_date = date.toISOString();
+		} else {
+			$formData.start_date = '';
+		}
 	}
 
 	$: isSubmitting = $submitting;
+	// $: dateRecurrence = $formData.is_recurring !== undefined ? ($formData.is_recurring === true ? 'show' : '') : null;
 </script>
 
 <div class="flex flex-col items-center pt-4">
@@ -87,29 +96,6 @@
 		</div>
 
 		<div class="max-w-lg">
-			<label for="date" class="mb-2 block text-sm font-medium text-gray-700 dark:text-neutral-300">
-				Reminder Date and Time
-			</label>
-			<div class="relative">
-				<input
-					type="datetime-local"
-					id="date"
-					name="date"
-					class="block w-full rounded-lg border-gray-200 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
-					bind:value={localDateString}
-					aria-invalid={$errors.date ? 'true' : undefined}
-					aria-describedby="date-error"
-					{...$constraints.date}
-				/>
-			</div>
-			{#if $errors.date}
-				<p class="mt-2 text-sm text-red-600" id="date-error">
-					{$errors.date}
-				</p>
-			{/if}
-		</div>
-
-		<div class="max-w-lg">
 			<textarea
 				bind:value={$formData.description}
 				class="block w-full rounded-lg border-gray-200 px-3 py-2 focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 sm:px-4 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
@@ -143,6 +129,60 @@
 				>
 			</div>
 		</div>
+
+		{#if $formData.is_recurring === true}
+			<div class="max-w-lg">
+				<label
+					for="date"
+					class="mb-2 block text-sm font-medium text-gray-700 dark:text-neutral-300"
+				>
+					Start date and time
+				</label>
+				<div class="relative">
+					<input
+						type="datetime-local"
+						id="date"
+						name="date"
+						class="block w-full rounded-lg border-gray-200 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+						bind:value={localStartDateString}
+						aria-invalid={$errors.start_date ? 'true' : undefined}
+						aria-describedby="start-date-error"
+						{...$constraints.start_date}
+					/>
+				</div>
+				{#if $errors.start_date}
+					<p class="mt-2 text-sm text-red-600" id="start-date-error">
+						{$errors.start_date}
+					</p>
+				{/if}
+			</div>
+		{:else if $formData.is_recurring === false}
+			<div class="max-w-lg">
+				<label
+					for="date"
+					class="mb-2 block text-sm font-medium text-gray-700 dark:text-neutral-300"
+				>
+					Reminder Date and Time
+				</label>
+				<div class="relative">
+					<input
+						type="datetime-local"
+						id="date"
+						name="date"
+						class="block w-full rounded-lg border-gray-200 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 sm:py-3 sm:text-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+						bind:value={localDateString}
+						aria-invalid={$errors.date ? 'true' : undefined}
+						aria-describedby="date-error"
+						{...$constraints.date}
+					/>
+				</div>
+				{#if $errors.date}
+					<p class="mt-2 text-sm text-red-600" id="date-error">
+						{$errors.date}
+					</p>
+				{/if}
+			</div>
+		{/if}
 
 		<button class="btn-primary" type="submit" disabled={isSubmitting}>
 			{#if isSubmitting}
