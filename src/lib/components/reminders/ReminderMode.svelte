@@ -4,11 +4,15 @@
 	import isMobilePhone from 'validator/lib/isMobilePhone';
 	import type { TCreateReminderInput, TReminderMode } from '$lib/utils/schemas';
 	import type { SuperForm } from 'sveltekit-superforms';
+	import { reminderModesRune } from '$lib/stores/reminders.svelte';
 
-	export let superProps: SuperForm<TCreateReminderInput>;
-	export let reminderMode: TReminderMode;
-	export let i: number;
-	export let reminderModes: TReminderMode[];
+	// export let superProps: SuperForm<TCreateReminderInput>;
+	const { superProps, reminderMode, i } = $props();
+	// export let reminderMode: TReminderMode;
+	// export let i: number;
+	// export let reminderModes: TReminderMode[];
+
+	let reminderModes = $derived(reminderModesRune.modes);
 
 	const { form: formData, errors, constraints } = superProps;
 
@@ -35,49 +39,80 @@
 		})
 	]);
 
-	let mode: TMode;
-	let address: string = '';
-	let isValid = false;
+	let mode = $state<TMode>(reminderMode.mode as TMode);
+	let address = $state(reminderMode.address);
+
+	$effect(() => {
+		mode = reminderMode.mode as TMode;
+		address = reminderMode.address;
+	});
+	// let isValid = false;
+
+	const validationResult = $derived(ReminderModeInputSchema.safeParse({ mode, address }));
+	let isValid = $derived(validationResult.success);
+
+	let errorMsg = $derived.by(() => {
+		const issue = validationResult.error?.issues[0];
+		if (issue?.path[0] === 'address') {
+			return issue.message;
+		} else {
+			return '';
+		}
+	});
+
+	let isSaved = $state(
+		$formData.reminders.some((x: TReminderMode) => x.mode === mode && x.address === address)
+	);
+
+	$effect(() => {
+		const matchesSaved = $formData.reminders.some(
+			(x: TReminderMode) => x.mode === mode && x.address === address
+		);
+
+		if (matchesSaved) {
+			isSaved = true;
+		} else {
+			// If the current input does not match a saved item, only mark as not saved if we are not editing.
+			// When editing, isSaved is explicitly set to false by handleEdit().
+			if (isSaved) {
+				isSaved = false;
+			}
+		}
+	});
 
 	const handleSave = () => {
 		if (isValid) {
-			const existingItem = reminderModes[i];
+			// const existingItem = reminderModes[i];
+			const isNewItem = i >= reminderModes.length;
 
-			if (!existingItem) {
-				reminderModes = [...reminderModes, { mode, address }];
+			if (isNewItem) {
+				// reminderModes = [...reminderModes, { mode, address }];
+				reminderModesRune.setModes([...reminderModes, { mode: mode as TMode, address }]);
 			} else {
-				reminderModes[i] = { mode, address };
-				reminderModes = [...reminderModes];
+				// reminderModes[i] = { mode, address };
+				// reminderModes = [...reminderModes];
+				const newItems = reminderModesRune.modes;
+				newItems[i] = { mode: mode as TMode, address };
+				reminderModesRune.setModes([...newItems]);
 			}
-			$formData.reminders = reminderModes;
+			// $formData.reminders = reminderModes;
+			$formData.reminders = reminderModesRune.modes;
+			isSaved = true;
 		}
 	};
 
 	const handleDelete = () => {
-		reminderModes.splice(i, 1);
-		reminderModes = [...reminderModes];
-		$formData.reminders = reminderModes;
+		const newReminderModes = reminderModesRune.modes;
+		newReminderModes.splice(i, 1);
+		// reminderModes = [...reminderModes];
+		reminderModesRune.setModes([...newReminderModes]);
+		// $formData.reminders = reminderModes;
+		$formData.reminders = newReminderModes;
 	};
-
-	let errorMsg: string = '';
-	let isSaved = false;
 
 	const handleEdit = () => {
 		isSaved = false;
 	};
-
-	$: {
-		isValid = ReminderModeInputSchema.safeParse({ mode, address }).success;
-
-		const issue = ReminderModeInputSchema.safeParse({ mode, address }).error?.issues[0];
-		if (issue?.path[0] === 'address') {
-			errorMsg = issue.message;
-		} else {
-			errorMsg = '';
-		}
-
-		isSaved = $formData.reminders.some((x) => x.mode === mode && x.address === address);
-	}
 </script>
 
 <div class={`custom-card space-y-2  ${!isSaved ? 'bg-green-100' : 'bg-white'} `}>
@@ -130,15 +165,15 @@
 			disabled={!isValid || isSaved}
 			class="btn-soft self-start"
 			type="button"
-			on:click={handleSave}
+			onclick={handleSave}
 		>
 			<Icon icon="feather-save" />
 		</button>
-		<button class="btn-danger self-start" type="button" on:click={handleDelete}>
+		<button class="btn-danger self-start" type="button" onclick={handleDelete}>
 			<Icon icon="feather-trash" />
 		</button>
 		{#if isSaved}
-			<button class="btn-warn self-start" type="button" on:click={handleEdit}>
+			<button class="btn-warn self-start" type="button" onclick={handleEdit}>
 				<Icon icon="feather-edit" />
 			</button>
 		{/if}
