@@ -41,7 +41,7 @@
 }
 
 .custom-card {
-	@apply mt-2 flex flex-col rounded-xl border border-gray-200 p-4 shadow-2xs md:p-5 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400;
+	@apply mt-2 flex flex-col rounded-xl border border-gray-200 p-4 shadow-2xs md:p-5 dark:border-neutral-700 dark:text-neutral-400;
 }
 
 .input-default {

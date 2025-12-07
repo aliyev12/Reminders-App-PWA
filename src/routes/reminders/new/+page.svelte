@@ -71,5 +71,7 @@
 		</button>
 	</form>
 
-	<SuperDebug data={$formData} />
+	<div class="mt-10 w-full">
+		<SuperDebug data={$formData} />
+	</div>
 </div>
