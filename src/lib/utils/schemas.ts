@@ -36,7 +36,7 @@ export const ReminderBaseSchema = z.object({
 		.describe('List of contact modes to use for the reminder'),
 	alerts: z
 		.array(z.number())
-		.default([1000])
+		// .default([1000])
 		.describe('List of alert times in milliseconds before the reminder'),
 	is_recurring: z
 		.boolean()

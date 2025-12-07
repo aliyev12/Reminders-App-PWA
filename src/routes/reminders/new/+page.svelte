@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Alerts from '$lib/components/reminders/Alerts.svelte';
 	import FormItem from '$lib/components/reminders/FormItem.svelte';
 	import ReminderModes from '$lib/components/reminders/ReminderModes.svelte';
 	import type { IInputOption } from '$lib/utils/types';
@@ -46,6 +47,7 @@
 		<FormItem {superProps} inputType="text" inputName="title" label="Title" />
 		<FormItem {superProps} inputType="textarea" inputName="description" label="Description" />
 		<ReminderModes {superProps} />
+		<Alerts {superProps} />
 		<FormItem
 			{superProps}
 			inputType="radios"
