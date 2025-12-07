@@ -10,7 +10,7 @@
 	const { form: formData, errors, constraints } = superProps;
 </script>
 
-<div class="flex gap-x-6">
+<fieldset class="flex gap-x-6">
 	{#each options as option}
 		<div class="flex">
 			<input
@@ -29,4 +29,4 @@
 			>
 		</div>
 	{/each}
-</div>
+</fieldset>

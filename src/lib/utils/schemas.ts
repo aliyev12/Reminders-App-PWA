@@ -3,7 +3,7 @@ import { DEFAULT_EMAIL } from '$env/static/private';
 
 const defaultEmailAddress = DEFAULT_EMAIL;
 
-const ReminderModeSchema = z.object({
+export const ReminderModeSchema = z.object({
 	mode: z.string().describe('Mode of contact'),
 	address: z.string().describe('Contact address')
 });
@@ -21,11 +21,7 @@ const LocationSchema = z.object({
 });
 
 export const ReminderBaseSchema = z.object({
-	title: z
-		.string()
-		.min(3, 'Title is required')
-		.email('must be an email...')
-		.describe('Title of the reminder'),
+	title: z.string().min(3, 'Title is required').describe('Title of the reminder'),
 	date: z
 		.string()
 		.describe(
@@ -35,12 +31,8 @@ export const ReminderBaseSchema = z.object({
 	description: z.string().describe('Description of the reminder'),
 	reminders: z
 		.array(ReminderModeSchema)
-		.default([
-			{
-				mode: 'email',
-				address: defaultEmailAddress!
-			}
-		])
+		// .nonempty('You must add at least one reminder mode')
+		.min(1, 'Need at least one reminder')
 		.describe('List of contact modes to use for the reminder'),
 	alerts: z
 		.array(z.number())

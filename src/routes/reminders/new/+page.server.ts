@@ -16,10 +16,6 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		const { title } = form.data;
-		console.log('title = ', title);
-
-		console.log(form);
 		return message(form, 'Successfully created a new reminder!');
 	}
 };

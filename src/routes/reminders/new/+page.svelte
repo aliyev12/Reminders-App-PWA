@@ -1,5 +1,6 @@
 <script lang="ts">
 	import FormItem from '$lib/components/reminders/FormItem.svelte';
+	import ReminderModes from '$lib/components/reminders/ReminderModes.svelte';
 	import type { IInputOption } from '$lib/utils/types';
 	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms/client';
@@ -44,6 +45,7 @@
 	<form method="POST" use:enhance class="w-full space-y-4">
 		<FormItem {superProps} inputType="text" inputName="title" label="Title" />
 		<FormItem {superProps} inputType="textarea" inputName="description" label="Description" />
+		<ReminderModes {superProps} />
 		<FormItem
 			{superProps}
 			inputType="radios"
