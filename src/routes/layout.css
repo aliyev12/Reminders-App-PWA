@@ -59,3 +59,16 @@
 .custom-select {
 	@apply block w-full rounded-lg border-gray-200 px-4 py-3 pe-9 text-sm focus:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600;
 }
+
+#menu-button {
+	anchor-name: --mobile-menu-popover;
+}
+
+#mobile-menu-popover[popover] {
+	position-anchor: --mobile-menu-popover;
+	inset: auto;
+	bottom: anchor(top);
+	left: 50%;
+	transform: translateX(-50%);
+	margin-bottom: 1rem;
+}
