@@ -16,7 +16,7 @@
 <div
 	class="flex min-h-screen flex-col bg-gray-100 text-gray-900 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100"
 >
-	<Navbar />
+	<!-- <Navbar /> -->
 
 	<!-- <footer class="flex justify-end p-4"></footer> -->
 	<main class="container mx-auto grow p-4">

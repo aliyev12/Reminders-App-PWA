@@ -1,6 +1,17 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import ThemeToggle from './ThemeToggle.svelte';
+
+	// $effect(() => {
+	// 	const pop = document.getElementById('mobile-menu-popover');
+	// 	if (pop) {
+	// 		pop.showPopover(); // Force it open
+	// 		pop.addEventListener('toggle', (e) => {
+	// 			// Immediately re-open if something tries to close it
+	// 			if (!pop.matches(':open')) pop.showPopover();
+	// 		});
+	// 	}
+	// });
 </script>
 
 <nav class="fixed right-0 bottom-0 z-50 h-16 w-full px-5 pb-2">
@@ -21,31 +32,32 @@
 		</div>
 	</div>
 
-	<div id="mobile-menu-popover" popover class="w-full bg-transparent px-5 py-2">
+	<div
+		id="mobile-menu-popover"
+		popover
+		class="h-auto max-h-[90vh] w-full overflow-auto bg-transparent px-5 py-2"
+	>
 		<div
-			class="flex w-full flex-col items-center rounded-3xl border border-white/20 bg-black/30 px-2 py-3 shadow-lg backdrop-blur-lg"
+			class="flex flex-col items-center rounded-3xl border border-white/20 bg-black/30 px-2 py-3 shadow-lg backdrop-blur-lg"
 		>
-			<ul class="space-y-3">
+			<ul class="flex flex-col items-center space-y-3">
 				<li>
 					<a
-						href="#"
+						href="/reminders"
 						aria-current="page"
-						class="rounded-3xl border border-white/20 px-5 py-4 text-white">Home</a
+						class="block w-fit rounded-3xl border border-white/20 px-5 py-4 text-center text-white"
+						>Reminders</a
 					>
 				</li>
 				<li>
 					<a
-						href="#"
+						href="/"
 						aria-current="page"
-						class="rounded-3xl border border-white/20 px-5 py-4 text-white">Home</a
+						class="block w-fit rounded-3xl border border-white/20 px-5 py-4 text-center text-white"
+						>Home</a
 					>
 				</li>
 			</ul>
-			<!-- <a
-				href="#"
-				aria-current="page"
-				class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white">Home</a
-			> -->
 		</div>
 	</div>
 </nav>
