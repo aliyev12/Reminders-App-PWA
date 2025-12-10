@@ -1,12 +1,28 @@
 import { z } from 'zod/v3';
-import { DEFAULT_EMAIL } from '$env/static/private';
+import { AlertSchema } from './types';
+import { id } from 'zod/locales';
 
-const defaultEmailAddress = DEFAULT_EMAIL;
+// export type TMode = 'email' | 'sms' | 'push' | 'ical';
+
+export const ModeEnum = z.enum(['email', 'sms', 'push', 'ical']);
+export type TMode = z.infer<typeof ModeEnum>;
 
 export const ReminderModeSchema = z.object({
-	mode: z.string().describe('Mode of contact'),
+	id: z.string().describe('Unique identifier of the reminder mode'),
+	// mode: z.string().describe('Mode of contact'),
+	mode: ModeEnum.describe('Mode of contact'),
 	address: z.string().describe('Contact address')
 });
+
+export const ReminderModeUISchema = ReminderModeSchema.extend({
+	editable: z
+		.boolean()
+		.optional()
+		.default(false)
+		.describe('Indicates if the reminder mode is editable')
+});
+
+export type TReminderModeUI = z.infer<typeof ReminderModeUISchema>;
 
 const LocationSchema = z.object({
 	addressLine1: z
@@ -35,7 +51,7 @@ export const ReminderBaseSchema = z.object({
 		.min(1, 'Need at least one reminder')
 		.describe('List of contact modes to use for the reminder'),
 	alerts: z
-		.array(z.number())
+		.array(AlertSchema)
 		// .default([1000])
 		.describe('List of alert times in milliseconds before the reminder'),
 	is_recurring: z
@@ -69,43 +85,6 @@ export const ReminderSchema = ReminderBaseSchema.extend({
 	last_alert_time: z.any().nullable().describe('Last alert time in ISO format')
 });
 
-export const RemindersSchema = z.array(ReminderSchema).describe('An array of reminder objects.');
-
 export type TReminder = z.infer<typeof ReminderSchema>;
-
 export type TReminderMode = z.infer<typeof ReminderModeSchema>;
-
-export const RemindersOutputSchema = z
-	.object({
-		result: RemindersSchema.optional(),
-		error: z.string().optional()
-	})
-	.describe('An array of active reminder objects.');
-
-export type TRemindersOutput = z.infer<typeof RemindersOutputSchema>;
-
-export const ReminderOutputSchema = z
-	.object({
-		result: ReminderSchema.optional(),
-		error: z.string().optional()
-	})
-	.describe('An array of active reminder objects.');
-
-export type TReminderOutput = z.infer<typeof ReminderOutputSchema>;
-
-export const CreateReminderInputSchema = ReminderBaseSchema.extend({});
-
-export const DeleteReminderOutputSchema = z.object({
-	status: z.string().describe('Status of the delete operation'),
-	error: z.string().optional().describe('Error message if the delete operation failed'),
-	deletedReminder: ReminderSchema.optional().describe('The reminder that was deleted')
-});
-
-export type TDeleteReminderOutput = z.infer<typeof DeleteReminderOutputSchema>;
-
-export const UpdateReminderInputSchema = ReminderBaseSchema.extend({
-	id: z.number().describe('Unique identifier of the reminder')
-});
-
-export type TCreateReminderInput = z.infer<typeof CreateReminderInputSchema>;
-export type TUpdateReminderInput = z.infer<typeof UpdateReminderInputSchema>;
+export type TReminderBase = z.infer<typeof ReminderBaseSchema>;

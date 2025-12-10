@@ -1,23 +1,19 @@
 <script lang="ts">
-	import Icon from '@iconify/svelte';
-	import { z } from 'zod/v3';
-	import isMobilePhone from 'validator/lib/isMobilePhone';
-	import type { TCreateReminderInput, TReminderMode } from '$lib/utils/schemas';
-	import type { SuperForm } from 'sveltekit-superforms';
 	import { reminderModesRune } from '$lib/stores/reminders.svelte';
+	import type { TReminderBase } from '$lib/utils/schemas';
+	import type { SuperForm } from 'sveltekit-superforms';
+	import isMobilePhone from 'validator/lib/isMobilePhone';
+	import { z } from 'zod/v3';
 	import ListItem from './ListItem.svelte';
 
-	// export let superProps: SuperForm<TCreateReminderInput>;
-	const { superProps, reminderMode, i } = $props();
-	// export let reminderMode: TReminderMode;
-	// export let i: number;
-	// export let reminderModes: TReminderMode[];
+	type Props = {
+		superProps: SuperForm<TReminderBase>;
+		modeId: string;
+	};
 
-	let reminderModes = $derived(reminderModesRune.modes);
-
-	const { form: formData, errors, constraints } = superProps;
-
-	type TMode = 'email' | 'sms' | 'push' | 'ical';
+	const { superProps, modeId }: Props = $props();
+	const formData = $derived(superProps.form);
+	const mode = $derived(reminderModesRune.getModeById(modeId));
 
 	const ReminderModeInputSchema = z.discriminatedUnion('mode', [
 		z.object({
@@ -40,16 +36,9 @@
 		})
 	]);
 
-	let mode = $state<TMode>(reminderMode.mode as TMode);
-	let address = $state(reminderMode.address);
-
-	$effect(() => {
-		mode = reminderMode.mode as TMode;
-		address = reminderMode.address;
-	});
-	// let isValid = false;
-
-	const validationResult = $derived(ReminderModeInputSchema.safeParse({ mode, address }));
+	const validationResult = $derived(
+		ReminderModeInputSchema.safeParse({ mode: mode.mode, address: mode.address })
+	);
 	let isValid = $derived(validationResult.success);
 
 	let errorMsg = $derived.by(() => {
@@ -61,65 +50,48 @@
 		}
 	});
 
-	let isSaved = $state(
-		$formData.reminders.some((x: TReminderMode) => x.mode === mode && x.address === address)
-	);
-
-	$effect(() => {
-		const matchesSaved = $formData.reminders.some(
-			(x: TReminderMode) => x.mode === mode && x.address === address
-		);
-
-		if (matchesSaved) {
-			isSaved = true;
-		} else {
-			// If the current input does not match a saved item, only mark as not saved if we are not editing.
-			// When editing, isSaved is explicitly set to false by handleEdit().
-			if (isSaved) {
-				isSaved = false;
-			}
-		}
-	});
-
 	const handleSave = () => {
 		if (isValid) {
-			// const existingItem = reminderModes[i];
-			const isNewItem = i >= reminderModes.length;
-
-			if (isNewItem) {
-				// reminderModes = [...reminderModes, { mode, address }];
-				reminderModesRune.setModes([...reminderModes, { mode: mode as TMode, address }]);
-			} else {
-				// reminderModes[i] = { mode, address };
-				// reminderModes = [...reminderModes];
-				const newItems = reminderModesRune.modes;
-				newItems[i] = { mode: mode as TMode, address };
-				reminderModesRune.setModes([...newItems]);
-			}
-			// $formData.reminders = reminderModes;
-			$formData.reminders = reminderModesRune.modes;
-			isSaved = true;
+			$formData.reminders = reminderModesRune.modes.map((x) => ({
+				id: x.id,
+				mode: x.mode,
+				address: x.address
+			}));
+			reminderModesRune.setModeIsBeingAdded(false);
 		}
 	};
 
 	const handleDelete = () => {
-		const newReminderModes = reminderModesRune.modes;
-		newReminderModes.splice(i, 1);
-		// reminderModes = [...reminderModes];
-		reminderModesRune.setModes([...newReminderModes]);
-		// $formData.reminders = reminderModes;
-		$formData.reminders = newReminderModes;
+		$formData.reminders = reminderModesRune.modes
+			.filter((x) => x.id !== modeId)
+			.map((x) => ({ id: x.id, mode: x.mode, address: x.address }));
+		reminderModesRune.removeMode(modeId);
+		reminderModesRune.setModeIsBeingAdded(false);
 	};
 
 	const handleEdit = () => {
-		isSaved = false;
+		reminderModesRune.setModeIsBeingAdded(true);
+		reminderModesRune.setModeEditable(modeId, true);
 	};
+
+	const disableDelete = $derived(() => {
+		const modeFromForm = $formData.reminders.find((x) => x.id === modeId);
+		if (modeFromForm && mode.editable) return true;
+		return false;
+	});
 </script>
 
-<ListItem {isValid} {isSaved} {handleSave} {handleDelete} {handleEdit}>
+<ListItem
+	{isValid}
+	{handleSave}
+	{handleDelete}
+	{handleEdit}
+	editable={mode.editable}
+	disableDelete={disableDelete()}
+>
 	<label>
 		Mode
-		<select name="mode" class="custom-select" bind:value={mode}>
+		<select name="mode" class="custom-select" bind:value={mode.mode} disabled={!mode.editable}>
 			<option value="">Select mode</option>
 			<option value="email">Email</option>
 			<option value="sms">SMS</option>
@@ -127,31 +99,50 @@
 			<option value="ical">iCalendar event</option>
 		</select>
 	</label>
-	{#if mode}
-		{#if mode === 'email'}
+	{#if mode.mode}
+		{#if mode.mode === 'email'}
 			<label>
 				Email address
 				<input
+					disabled={!mode.editable}
 					name="address"
 					class="input-default custom-input"
 					type="email"
-					bind:value={address}
+					bind:value={mode.address}
 				/>
 			</label>
-		{:else if mode === 'sms'}
+		{:else if mode.mode === 'sms'}
 			<label>
 				Phone number
-				<input name="address" class="input-default custom-input" type="tel" bind:value={address} />
+				<input
+					disabled={!mode.editable}
+					name="address"
+					class="input-default custom-input"
+					type="tel"
+					bind:value={mode.address}
+				/>
 			</label>
-		{:else if mode === 'push'}
+		{:else if mode.mode === 'push'}
 			<label>
 				Push token
-				<input name="address" class="input-default custom-input" type="text" bind:value={address} />
+				<input
+					disabled={!mode.editable}
+					name="address"
+					class="input-default custom-input"
+					type="text"
+					bind:value={mode.address}
+				/>
 			</label>
-		{:else if mode === 'ical'}
+		{:else if mode.mode === 'ical'}
 			<label>
 				iCalendar URL
-				<input name="address" class="input-default custom-input" type="url" bind:value={address} />
+				<input
+					disabled={!mode.editable}
+					name="address"
+					class="input-default custom-input"
+					type="url"
+					bind:value={mode.address}
+				/>
 			</label>
 		{/if}
 		{#if errorMsg}

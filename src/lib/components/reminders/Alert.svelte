@@ -1,22 +1,19 @@
 <script lang="ts">
 	import { reminderModesRune } from '$lib/stores/reminders.svelte';
-	import { z } from 'zod/v3';
+	import { type TReminderBase } from '$lib/utils/schemas';
+	import { AlertSchema } from '$lib/utils/types';
+	import type { SuperForm } from 'sveltekit-superforms';
 	import ListItem from './ListItem.svelte';
 
-	const { superProps, i } = $props();
+	type Props = {
+		superProps: SuperForm<TReminderBase>;
+		alertId: string;
+	};
 
-	let reminderAlerts = $derived(reminderModesRune.alerts);
+	const { superProps, alertId }: Props = $props();
 	const formData = $derived(superProps.form);
-
-	const ReminderAlertInputSchema = z.number().min(3000, 'Alert must be at least 3000 milliseconds');
-
-	let alert = $state(0);
-
-	$effect.pre(() => {
-		alert = reminderAlerts[i];
-	});
-
-	const validationResult = $derived(ReminderAlertInputSchema.safeParse(alert));
+	const alert = $derived(reminderModesRune.getAlertById(alertId));
+	const validationResult = $derived(AlertSchema.safeParse(alert));
 	let isValid = $derived(validationResult.success);
 
 	let errorMsg = $derived.by(() => {
@@ -24,44 +21,49 @@
 		return issue?.message;
 	});
 
-	let isSaved = $derived($formData.alerts.some((x: number) => x === alert));
-
 	const handleSave = () => {
 		if (isValid) {
-			const isNewItem = i >= reminderAlerts.length;
-
-			if (isNewItem) {
-				reminderModesRune.setAlerts([...reminderAlerts, alert]);
-			} else {
-				const newItems = reminderModesRune.alerts;
-				newItems[i] = alert;
-				reminderModesRune.setAlerts([...newItems]);
-			}
-			$formData.alerts = reminderModesRune.alerts;
-			isSaved = true;
+			$formData.alerts = reminderModesRune.alerts.map((x) => ({ id: x.id, time: x.time }));
+			reminderModesRune.setAlertIsBeingAdded(false);
 		}
 	};
 
 	const handleDelete = () => {
-		const newReminderAlerts = reminderModesRune.alerts;
-		newReminderAlerts.splice(i, 1);
-		reminderModesRune.setAlerts([...newReminderAlerts]);
-		$formData.alerts = newReminderAlerts;
+		$formData.alerts = reminderModesRune.alerts
+			.filter((x) => x.id !== alertId)
+			.map((x) => ({ id: x.id, time: x.time }));
+		reminderModesRune.removeAlert(alertId);
+		reminderModesRune.setAlertIsBeingAdded(false);
 	};
 
 	const handleEdit = () => {
-		isSaved = false;
+		reminderModesRune.setAlertIsBeingAdded(true);
+		reminderModesRune.setAlertEditable(alertId, true);
 	};
+
+	const disableDelete = $derived(() => {
+		const alertFromForm = $formData.alerts.find((x) => x.id === alertId);
+		if (alertFromForm && alert.editable) return true;
+		return false;
+	});
 </script>
 
-<ListItem {isValid} {isSaved} {handleSave} {handleDelete} {handleEdit}>
+<ListItem
+	{isValid}
+	{handleSave}
+	{handleDelete}
+	{handleEdit}
+	editable={alert.editable}
+	disableDelete={disableDelete()}
+>
 	<label>
 		Alert in milliseconds
 		<input
-			name={`alert-${i}`}
+			name={`alert-${alertId}`}
 			class={`custom-input ${!isValid ? 'input-error' : 'input-default'}`}
 			type="number"
-			bind:value={alert}
+			disabled={!alert.editable}
+			bind:value={alert.time}
 		/>
 	</label>
 	{#if errorMsg}

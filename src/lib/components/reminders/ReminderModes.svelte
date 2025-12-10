@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { reminderModesRune } from '$lib/stores/reminders.svelte';
+	import { nanoid } from 'nanoid';
 	import ListItems from './ListItems.svelte';
 	import ReminderMode from './ReminderMode.svelte';
+	import type { TReminderModeUI } from '$lib/utils/schemas';
 
 	const { superProps } = $props();
 
-	const { form: formData } = superProps;
+	const formData = $derived(superProps.form);
 
 	reminderModesRune.setModes($formData.reminders);
 
@@ -13,19 +15,15 @@
 		reminderModesRune.setModes($formData.reminders);
 	});
 
-	// $effect(() => {
-	// 	// $formData.reminders = reminderModesRune.modes;
-	// 	// reminderModes = reminderModesRune.modes;
-	// });
-
 	const handleOnClick = () => {
-		reminderModesRune.setModes([
-			...reminderModesRune.modes,
-			{
-				mode: '',
-				address: ''
-			}
-		]);
+		reminderModesRune.setModeIsBeingAdded(true);
+		const newMode: TReminderModeUI = {
+			id: nanoid(),
+			mode: 'email',
+			address: '',
+			editable: true
+		};
+		reminderModesRune.addMode(newMode);
 	};
 </script>
 
@@ -36,8 +34,9 @@
 	label="Reminder modes"
 	inputName="reminders"
 	{handleOnClick}
+	isBeingAdded={reminderModesRune.alertIsBeingAdded || reminderModesRune.modeIsBeingAdded}
 >
-	{#each reminderModesRune.modes as reminderMode, i}
-		<ReminderMode {superProps} {reminderMode} {i} />
+	{#each reminderModesRune.modes as reminderMode (reminderMode.id)}
+		<ReminderMode modeId={reminderMode.id} {superProps} />
 	{/each}
 </ListItems>

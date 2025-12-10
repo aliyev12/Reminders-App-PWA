@@ -1,13 +1,16 @@
 <script lang="ts">
 	import Alerts from '$lib/components/reminders/Alerts.svelte';
 	import FormItem from '$lib/components/reminders/FormItem.svelte';
+	import { reminderModesRune } from '$lib/stores/reminders.svelte';
 	import ReminderModes from '$lib/components/reminders/ReminderModes.svelte';
 	import type { IInputOption } from '$lib/utils/types';
 	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms/client';
 	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
 
-	export let data: PageData;
+	type Props = { data: PageData };
+
+	const { data }: Props = $props();
 
 	const superProps = superForm(data.form, {
 		taintedMessage: true,
@@ -27,7 +30,7 @@
 		}
 	];
 
-	$: isSubmitting = $submitting;
+	const isSubmitting = $derived($submitting);
 </script>
 
 <div class="flex flex-col items-center pt-4">
@@ -64,7 +67,14 @@
 			<FormItem {superProps} inputName="date" label="Date" />
 		{/if}
 
-		<button class="btn-primary" type="submit" disabled={isSubmitting}>
+		<hr class="mt-5 border border-gray-400/40" />
+		<button
+			class="btn-primary mt-5 justify-self-center"
+			type="submit"
+			disabled={isSubmitting ||
+				reminderModesRune.alertIsBeingAdded ||
+				reminderModesRune.modeIsBeingAdded}
+		>
 			{#if isSubmitting}
 				Submitting
 			{:else}

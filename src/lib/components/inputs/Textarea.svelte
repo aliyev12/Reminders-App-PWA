@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { TCreateReminderInput } from '$lib/utils/schemas';
+	import type { TReminderBase } from '$lib/utils/schemas';
 	import type { SuperForm } from 'sveltekit-superforms';
 
-	export let superProps: SuperForm<TCreateReminderInput>;
-	export let inputName: keyof TCreateReminderInput;
+	export let superProps: SuperForm<TReminderBase>;
+	export let inputName: keyof TReminderBase;
 
 	const { form: formData, errors, constraints } = superProps;
 </script>

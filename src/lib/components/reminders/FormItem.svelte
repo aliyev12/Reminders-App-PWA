@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { TCreateReminderInput } from '$lib/utils/schemas';
+	import type { TReminderBase } from '$lib/utils/schemas';
 	import type { SuperForm } from 'sveltekit-superforms';
 	import TextInput from '../inputs/Text.svelte';
 	import Textarea from '../inputs/Textarea.svelte';
@@ -8,10 +8,10 @@
 	import Radios from '../inputs/Radios.svelte';
 	import FormItemWrapper from './FormItemWrapper.svelte';
 
-	export let superProps: SuperForm<TCreateReminderInput>;
+	export let superProps: SuperForm<TReminderBase>;
 	export let inputType: string | null = null;
 	export let options: IInputOption[] | null = null;
-	export let inputName: keyof TCreateReminderInput;
+	export let inputName: keyof TReminderBase;
 	export let label: string;
 
 	const isDateType = (value: string): value is TDateType => dateTypes.includes(value as TDateType);

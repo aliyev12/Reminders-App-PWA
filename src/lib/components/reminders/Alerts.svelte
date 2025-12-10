@@ -2,10 +2,11 @@
 	import { reminderModesRune } from '$lib/stores/reminders.svelte';
 	import Alert from './Alert.svelte';
 	import ListItems from './ListItems.svelte';
+	import { nanoid } from 'nanoid';
 
 	const { superProps } = $props();
 
-	const { form: formData } = superProps;
+	const formData = $derived(superProps.form);
 
 	reminderModesRune.setAlerts($formData.alerts);
 
@@ -13,16 +14,10 @@
 		reminderModesRune.setAlerts($formData.alerts);
 	});
 
-	$effect(() => {
-		console.log('reminderModesRune.alerts = ', JSON.stringify(reminderModesRune.alerts));
-	});
-
 	const handleOnClick = () => {
-		reminderModesRune.setAlerts([
-			...reminderModesRune.alerts,
-			86400000, // 24h
-			1000
-		]);
+		reminderModesRune.setAlertIsBeingAdded(true);
+		const newAlert = { id: nanoid(), time: 86400000, editable: true }; // 24h
+		reminderModesRune.addAlert(newAlert);
 	};
 </script>
 
@@ -33,8 +28,9 @@
 	label="Alerts"
 	inputName="alerts"
 	{handleOnClick}
+	isBeingAdded={reminderModesRune.alertIsBeingAdded || reminderModesRune.modeIsBeingAdded}
 >
-	{#each reminderModesRune.alerts as alertValue, i (alertValue)}
-		<Alert {i} {superProps} />
+	{#each reminderModesRune.alerts as alertItem (alertItem.id)}
+		<Alert alertId={alertItem.id} {superProps} />
 	{/each}
 </ListItems>

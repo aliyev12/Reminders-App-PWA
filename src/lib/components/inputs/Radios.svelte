@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { TCreateReminderInput } from '$lib/utils/schemas';
+	import type { TReminderBase } from '$lib/utils/schemas';
 	import type { IInputOption, TRadiosType } from '$lib/utils/types';
 	import type { SuperForm } from 'sveltekit-superforms';
 
-	export let superProps: SuperForm<TCreateReminderInput>;
+	export let superProps: SuperForm<TReminderBase>;
 	export let options: IInputOption[] | null = null;
 	export let inputName: TRadiosType;
 

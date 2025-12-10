@@ -10,11 +10,11 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href="/icons/favicon.ico" />
+	<link rel="icon" href="/favicon.ico" />
 </svelte:head>
 
 <div
-	class="flex min-h-screen flex-col bg-gray-100 text-gray-900 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100"
+	class="flex min-h-screen flex-col bg-gray-100 pb-16 text-gray-900 transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100"
 >
 	<!-- <Navbar /> -->
 
