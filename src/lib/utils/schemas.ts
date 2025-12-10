@@ -9,7 +9,6 @@ export type TMode = z.infer<typeof ModeEnum>;
 
 export const ReminderModeSchema = z.object({
 	id: z.string().describe('Unique identifier of the reminder mode'),
-	// mode: z.string().describe('Mode of contact'),
 	mode: ModeEnum.describe('Mode of contact'),
 	address: z.string().describe('Contact address')
 });

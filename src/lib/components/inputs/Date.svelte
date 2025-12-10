@@ -12,7 +12,7 @@
 	$: {
 		if (localDateString) {
 			const date = new Date(localDateString);
-			$formData[dateFieldName] = date.toISOString();
+			$formData[dateFieldName] = date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 		} else {
 			$formData[dateFieldName] = '';
 		}
