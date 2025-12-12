@@ -3,7 +3,8 @@
 	import type { SuperForm } from 'sveltekit-superforms';
 
 	export let superProps: SuperForm<TReminderBase>;
-	export let inputName: keyof TReminderBase;
+	// export let inputName: keyof TReminderBase;
+	export let inputName: 'title';
 
 	const { form: formData, errors, constraints } = superProps;
 </script>

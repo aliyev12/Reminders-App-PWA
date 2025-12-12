@@ -23,17 +23,22 @@ export const ReminderModeUISchema = ReminderModeSchema.extend({
 
 export type TReminderModeUI = z.infer<typeof ReminderModeUISchema>;
 
-const LocationSchema = z.object({
-	addressLine1: z
-		.string()
-		.min(1, 'Address Line 1 is required')
-		.describe('First line of the address'),
-	addressLine2: z.string().optional().describe('Second line of the address'),
-	city: z.string().min(1, 'City is required').describe('City of the address'),
-	state: z.string().min(1, 'State is required').describe('State of the address'),
-	postalCode: z.string().min(1, 'Postal Code is required').describe('Postal code of the address'),
-	country: z.string().min(1, 'Country is required').describe('Country of the address')
+export const LocationSchema = z.object({
+	isSet: z.boolean().default(false).describe('Indicates if the location is set'),
+	details: z.object({
+		addressLine1: z
+			.string()
+			.min(1, 'Address Line 1 is required')
+			.describe('First line of the address'),
+		addressLine2: z.string().optional().describe('Second line of the address'),
+		city: z.string().min(1, 'City is required').describe('City of the address'),
+		state: z.string().min(1, 'State is required').describe('State of the address'),
+		postalCode: z.string().min(1, 'Postal Code is required').describe('Postal code of the address'),
+		country: z.string().min(1, 'Country is required').describe('Country of the address')
+	})
 });
+
+export type TLocation = z.infer<typeof LocationSchema>;
 
 export const ReminderBaseSchema = z.object({
 	title: z.string().min(3, 'Title is required').describe('Title of the reminder'),
@@ -42,7 +47,7 @@ export const ReminderBaseSchema = z.object({
 		.describe(
 			'Date of the reminder, it has to be using UTC format, for example: 2025-11-29T03:03:53Z'
 		),
-	location: z.string().nullable().optional().default(null).describe('Location of the reminder'),
+	location: LocationSchema.nullable().optional().default(null).describe('Location of the reminder'),
 	description: z.string().describe('Description of the reminder'),
 	reminders: z
 		.array(ReminderModeSchema)

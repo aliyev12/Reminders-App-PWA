@@ -4,9 +4,16 @@
 	import TextInput from '../inputs/Text.svelte';
 	import Textarea from '../inputs/Textarea.svelte';
 	import Date from '../inputs/Date.svelte';
-	import { dateTypes, type IInputOption, type TDateType, type TRadiosType } from '$lib/utils/types';
+	import {
+		dateTypes,
+		type IInputOption,
+		type TDateType,
+		type TRadiosType,
+		type TCheckboxesType
+	} from '$lib/utils/types';
 	import Radios from '../inputs/Radios.svelte';
 	import FormItemWrapper from './FormItemWrapper.svelte';
+	import Checkboxes from '../inputs/Checkboxes.svelte';
 
 	export let superProps: SuperForm<TReminderBase>;
 	export let inputType: string | null = null;
@@ -19,13 +26,15 @@
 
 <FormItemWrapper {superProps} {inputType} {label} {inputName}>
 	{#if inputType === 'text'}
-		<TextInput {inputName} {superProps} />
+		<TextInput inputName="title" {superProps} />
 	{:else if inputType === 'textarea'}
 		<Textarea {inputName} {superProps} />
 	{:else if isDateType(inputName)}
 		<Date {superProps} dateFieldName={inputName} />
 	{:else if inputType === 'radios' && options}
 		<Radios {superProps} {options} inputName={inputName as TRadiosType} />
+	{:else if inputType === 'checkboxes' && options}
+		<Checkboxes {superProps} {options} inputName={inputName as TCheckboxesType} />
 	{:else}
 		<h1>Unsupported input type</h1>
 	{/if}

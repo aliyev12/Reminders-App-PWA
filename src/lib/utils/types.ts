@@ -7,8 +7,10 @@ export interface IInputOption {
 
 export const dateTypes = ['date', 'start_date', 'end_date'] as const;
 export const radiosTypes = ['is_recurring', 'is_active'] as const;
+export const checkboxesTypes = ['location'] as const;
 export type TDateType = (typeof dateTypes)[number];
 export type TRadiosType = (typeof radiosTypes)[number];
+export type TCheckboxesType = (typeof checkboxesTypes)[number];
 
 export const AlertSchema = z.object({
 	id: z.string().describe('Unique identifier of the alert'),

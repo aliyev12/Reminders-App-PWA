@@ -7,6 +7,7 @@
 	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms/client';
 	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
+	import Location from '$lib/components/reminders/Location.svelte';
 
 	type Props = { data: PageData };
 
@@ -66,6 +67,8 @@
 		{:else if $formData.is_recurring === false}
 			<FormItem {superProps} inputName="date" label="Date" />
 		{/if}
+
+		<Location {superProps} />
 
 		<hr class="mt-5 border border-gray-400/40" />
 		<button
