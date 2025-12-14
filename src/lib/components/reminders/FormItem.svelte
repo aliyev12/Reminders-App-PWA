@@ -1,31 +1,34 @@
 <script lang="ts">
 	import type { TReminderBase } from '$lib/utils/schemas';
-	import type { SuperForm } from 'sveltekit-superforms';
-	import TextInput from '../inputs/Text.svelte';
-	import Textarea from '../inputs/Textarea.svelte';
-	import Date from '../inputs/Date.svelte';
 	import {
 		dateTypes,
 		type IInputOption,
+		type TCheckboxesType,
 		type TDateType,
-		type TRadiosType,
-		type TCheckboxesType
+		type TRadiosType
 	} from '$lib/utils/types';
-	import Radios from '../inputs/Radios.svelte';
-	import FormItemWrapper from './FormItemWrapper.svelte';
+	import type { SuperForm } from 'sveltekit-superforms';
 	import Checkboxes from '../inputs/Checkboxes.svelte';
-	import Checkbox from '../inputs/Checkbox.svelte';
+	import Date from '../inputs/Date.svelte';
+	import Radios from '../inputs/Radios.svelte';
+	import TextInput from '../inputs/Text.svelte';
+	import Textarea from '../inputs/Textarea.svelte';
+	import FormItemWrapper from './FormItemWrapper.svelte';
 
-	export let superProps: SuperForm<TReminderBase>;
-	export let inputType: string | null = null;
-	export let options: IInputOption[] | null = null;
-	export let inputName: keyof TReminderBase;
-	export let label: string;
+	type Props = {
+		isRequired?: boolean;
+		superProps: SuperForm<TReminderBase>;
+		inputType?: string;
+		inputName: keyof TReminderBase;
+		label: string;
+		options?: IInputOption[] | null;
+	};
 
+	const { isRequired = false, superProps, inputType, inputName, label, options }: Props = $props();
 	const isDateType = (value: string): value is TDateType => dateTypes.includes(value as TDateType);
 </script>
 
-<FormItemWrapper {superProps} {inputType} {label} {inputName}>
+<FormItemWrapper {superProps} {inputType} {label} {inputName} {isRequired}>
 	{#if inputType === 'text'}
 		<TextInput inputName="title" {superProps} />
 	{:else if inputType === 'textarea'}

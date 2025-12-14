@@ -13,6 +13,7 @@
 		inputName: keyof TReminderBase;
 		handleOnClick: () => void;
 		isBeingAdded: boolean;
+		isRequired?: boolean;
 	};
 
 	const {
@@ -23,11 +24,12 @@
 		label = 'Reminder modes',
 		inputName = 'reminders',
 		handleOnClick,
-		isBeingAdded
+		isBeingAdded,
+		isRequired = false
 	}: Props = $props();
 </script>
 
-<FormItemWrapper {superProps} {label} {inputName}>
+<FormItemWrapper {superProps} {label} {inputName} {isRequired}>
 	{#if list.length === 0}
 		<p class="mb-3 text-sm italic">{noneTxt}</p>
 	{:else}

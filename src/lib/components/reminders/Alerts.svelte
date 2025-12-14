@@ -27,6 +27,7 @@
 	noneTxt="No alerts added yet"
 	label="Alerts"
 	inputName="alerts"
+	isRequired={true}
 	{handleOnClick}
 	isBeingAdded={reminderModesRune.alertIsBeingAdded || reminderModesRune.modeIsBeingAdded}
 >

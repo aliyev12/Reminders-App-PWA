@@ -8,7 +8,7 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
 	import Location from '$lib/components/reminders/Location.svelte';
-	import Location2 from '$lib/components/reminders/Location2.svelte';
+	import SimpleFormItem from '$lib/components/reminders/SimpleFormItem.svelte';
 
 	type Props = { data: PageData };
 
@@ -19,7 +19,10 @@
 		dataType: 'json'
 	});
 
-	const { form: formData, enhance, message, submitting } = superProps;
+	const { enhance, message, submitting } = superProps;
+	const formData = $derived(superProps.form);
+	const errors = $derived(superProps.errors);
+	const constraints = $derived(superProps.constraints);
 
 	const isRecurringOptions: IInputOption[] = [
 		{
@@ -49,8 +52,42 @@
 	{/if}
 
 	<form method="POST" use:enhance class="w-full space-y-4">
-		<FormItem {superProps} inputType="text" inputName="title" label="Title" />
-		<FormItem {superProps} inputType="textarea" inputName="description" label="Description" />
+		<SimpleFormItem
+			inputId="title"
+			label="Title"
+			error={$errors?.title?.[0] ?? null}
+			isRequired={true}
+		>
+			<input
+				type="text"
+				id="title"
+				name="title"
+				class={`${$errors?.title?.[0] ? 'input-error' : 'input-default '} custom-input`}
+				bind:value={$formData.title}
+				aria-invalid={$errors?.title?.[0] ? 'true' : undefined}
+				aria-describedby="title"
+				{...$constraints?.title}
+			/>
+		</SimpleFormItem>
+
+		<SimpleFormItem
+			inputId="description"
+			label="Description"
+			error={$errors?.description?.[0] ?? null}
+			isRequired={true}
+		>
+			<textarea
+				id="description"
+				name="description"
+				bind:value={$formData.description}
+				class={`${$errors?.description ? 'input-error' : 'input-default '} custom-input`}
+				rows="3"
+				aria-invalid={$errors?.description ? 'true' : undefined}
+				aria-describedby="description"
+				{...$constraints?.description}
+			></textarea>
+		</SimpleFormItem>
+
 		<ReminderModes {superProps} />
 		<Alerts {superProps} />
 		<FormItem
@@ -58,6 +95,7 @@
 			inputType="radios"
 			inputName="is_recurring"
 			label="Event type"
+			isRequired={true}
 			options={isRecurringOptions}
 		/>
 
@@ -69,7 +107,7 @@
 			<FormItem {superProps} inputName="date" label="Date" />
 		{/if}
 
-		<Location2 {superProps} />
+		<Location {superProps} />
 
 		<hr class="mt-5 border border-gray-400/40" />
 		<button

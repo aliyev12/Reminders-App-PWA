@@ -1,12 +1,7 @@
 <script lang="ts">
-	import { reminderModesRune } from '$lib/stores/reminders.svelte';
-	import { LocationSchema, type TLocation, type TReminderBase } from '$lib/utils/schemas';
-	import { AlertSchema, type IInputOption } from '$lib/utils/types';
+	import { type TReminderBase } from '$lib/utils/schemas';
 	import type { SuperForm } from 'sveltekit-superforms';
-	import ListItem from './ListItem.svelte';
-	import FormItemWrapper from './FormItemWrapper.svelte';
-	import Icon from '@iconify/svelte';
-	import FormItem from './FormItem.svelte';
+	import SimpleFormItem from './SimpleFormItem.svelte';
 
 	type Props = {
 		superProps: SuperForm<TReminderBase>;
@@ -14,176 +9,100 @@
 
 	const { superProps }: Props = $props();
 	const formData = $derived(superProps.form);
-
-	let currentLocation: TLocation = $state({
-		isSet: false,
-		details: {
-			addressLine1: '',
-			addressLine2: '',
-			city: '',
-			state: '',
-			postalCode: '',
-			country: ''
-		}
-	});
-	const validationResult = $derived(LocationSchema.safeParse(currentLocation));
-	let isValid = $derived(validationResult.success);
-
-	function getErrMsgs() {
-		return validationResult.error?.issues
-			.map((x) => ({ [x.path[1]]: x.message }))
-			.reduce((cur, acc) => (acc = { ...acc, ...cur }), {});
-	}
-
-	const handleSave = () => {
-		if (isValid) {
-			// $formData.alerts = reminderModesRune.alerts.map((x) => ({ id: x.id, time: x.time }));
-			// reminderModesRune.setAlertIsBeingAdded(false);
-		}
-	};
-
-	const handleDelete = () => {
-		// $formData.alerts = reminderModesRune.alerts
-		// 	.filter((x) => x.id !== alertId)
-		// 	.map((x) => ({ id: x.id, time: x.time }));
-		// reminderModesRune.removeAlert(alertId);
-		// reminderModesRune.setAlertIsBeingAdded(false);
-	};
-
-	const handleEdit = () => {
-		// reminderModesRune.setAlertIsBeingAdded(true);
-		// reminderModesRune.setAlertEditable(alertId, true);
-	};
-
-	const disableDelete = $derived(() => {
-		// const alertFromForm = $formData.alerts.find((x) => x.id === alertId);
-		// if (alertFromForm && alert.editable) return true;
-		// return false;
-	});
-
-	const handleOnClick = () => {
-		currentLocation = {
-			...currentLocation,
-			isSet: true
-		};
-		// reminderModesRune.setAlertIsBeingAdded(true);
-		// const newAlert = { time: 86400000, editable: true }; // 24h
-		// reminderModesRune.addAlert(newAlert);
-		// $formData.alerts = reminderModesRune.alerts
-		// 	.filter((x) => x.id !== alertId)
-		// 	.map((x) => ({ id: x.id, time: x.time }));
-		// reminderModesRune.removeAlert(alertId);
-		// reminderModesRune.setAlertIsBeingAdded(false);
-	};
+	const errors = $derived(superProps.errors);
+	const constraints = $derived(superProps.constraints);
 </script>
 
-<FormItemWrapper {superProps} label="Set location" inputName="location">
-	<!-- <FormItem
-		{superProps}
-		inputType="checkboxes"
-		inputName="location"
-		label="Set location"
-		options={locationOptions}
-	/> -->
-
-	{#if !currentLocation.isSet}
-		<p class="mb-3 text-sm italic">No location has been set</p>
-	{:else}
-		<div class="custom-card bg-white dark:bg-neutral-900">
-			<ListItem
-				{isValid}
-				{handleSave}
-				{handleDelete}
-				{handleEdit}
-				editable={true}
-				disableDelete={false}
-			>
-				<label>
-					Address line 1
-					<input
-						type="text"
-						id="addressLine1"
-						name="addressLine1"
-						disabled={false}
-						class={`custom-input ${getErrMsgs()?.addressLine1 ? 'input-error' : 'input-default'}`}
-						bind:value={currentLocation.details.addressLine1}
-					/>
-				</label>
-				{#if getErrMsgs()?.addressLine1}
-					<p class="mt-0 text-sm text-red-600" id="hs-validation-name-error-helper">
-						{getErrMsgs()?.addressLine1}
-					</p>
-				{/if}
-				<label>
-					Address line 2
-					<input
-						type="text"
-						id="addressLine2"
-						name="addressLine2"
-						disabled={false}
-						class={`custom-input ${getErrMsgs()?.addressLine2 ? 'input-error' : 'input-default'}`}
-						bind:value={currentLocation.details.addressLine2}
-					/>
-				</label>
-				{#if getErrMsgs()?.addressLine2}
-					<p class="mt-0 text-sm text-red-600" id="hs-validation-name-error-helper">
-						{getErrMsgs()?.addressLine2}
-					</p>
-				{/if}
-				<label>
-					City
-					<input
-						type="text"
-						id="city"
-						name="city"
-						disabled={false}
-						class={`custom-input ${getErrMsgs()?.city ? 'input-error' : 'input-default'}`}
-						bind:value={currentLocation.details.city}
-					/>
-				</label>
-				{#if getErrMsgs()?.city}
-					<p class="mt-0 text-sm text-red-600" id="hs-validation-name-error-helper">
-						{getErrMsgs()?.city}
-					</p>
-				{/if}
-			</ListItem>
-		</div>
-	{/if}
-	{#if !currentLocation.isSet}
-		<button
-			class="btn-soft flex-important mt-3 justify-self-center"
-			type="button"
-			onclick={handleOnClick}
-			disabled={currentLocation.isSet}
-		>
-			<Icon icon="fe-plus" />
-		</button>
-	{/if}
-</FormItemWrapper>
-
-<!-- <ListItem
- 						bind:value={alert.time}
-
-	{isValid}
-	{handleSave}
-	{handleDelete}
-	{handleEdit}
-	editable={alert.editable}
-	disableDelete={disableDelete()}
+<SimpleFormItem
+	inputId="location-addressLine1"
+	label="Location"
+	error={$errors?.location?.isSet?.[0] ?? null}
 >
-	<label>
-		Alert in milliseconds
+	<input
+		id="location-isset"
+		name="location.isSet"
+		type="checkbox"
+		class="shrink-0 rounded-sm border-gray-200 text-blue-600 checked:border-blue-500 focus:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:checked:border-blue-500 dark:checked:bg-blue-500 dark:focus:ring-offset-gray-800"
+		{...$constraints?.location?.isSet}
+		bind:checked={$formData.location.isSet}
+	/>
+	<span class="ms-2 text-sm text-gray-500 dark:text-neutral-400">Enable location</span>
+</SimpleFormItem>
+
+{#if $formData?.location?.isSet}
+	<SimpleFormItem
+		inputId="location-addressLine1"
+		label="Address line 1"
+		error={$errors?.location?.details?.addressLine1?.[0] ?? null}
+		isRequired={true}
+	>
 		<input
-			name={`alert-${alertId}`}
-			class={`custom-input ${!isValid ? 'input-error' : 'input-default'}`}
-			type="number"
-			disabled={!alert.editable}
-			bind:value={alert.time}
+			type="text"
+			id="location-addressLine1"
+			name="location-addressLine1"
+			class={`${$errors?.location?.details?.addressLine1 ? 'input-error' : 'input-default '} custom-input`}
+			bind:value={$formData.location.details.addressLine1}
+			aria-invalid={$errors?.location?.details?.addressLine1 ? 'true' : undefined}
+			{...$constraints?.location?.details?.addressLine1}
 		/>
-	</label>
-	{#if errorMsg}
-		<p class="mt-0 text-sm text-red-600" id="hs-validation-name-error-helper">
-			{errorMsg}
-		</p>
-	{/if}
-</ListItem> -->
+	</SimpleFormItem>
+	<SimpleFormItem inputId="location-addressLine2" label="Address line 2" error={null}>
+		<input
+			type="text"
+			id="location-addressLine2"
+			name="location-addressLine2"
+			class={`${$errors?.location?.details?.addressLine2 ? 'input-error' : 'input-default '} custom-input`}
+			bind:value={$formData.location.details.addressLine2}
+			aria-invalid={$errors?.location?.details?.addressLine2 ? 'true' : undefined}
+			{...$constraints?.location?.details?.addressLine2}
+		/>
+	</SimpleFormItem>
+	<SimpleFormItem
+		inputId="location-city"
+		label="City"
+		error={$errors?.location?.details?.city?.[0] ?? null}
+		isRequired={true}
+	>
+		<input
+			type="text"
+			id="location-city"
+			name="location-city"
+			class={`${$errors?.location?.details?.city ? 'input-error' : 'input-default '} custom-input`}
+			bind:value={$formData.location.details.city}
+			aria-invalid={$errors?.location?.details?.city ? 'true' : undefined}
+			{...$constraints?.location?.details?.city}
+		/>
+	</SimpleFormItem>
+	<SimpleFormItem
+		inputId="location-state"
+		label="State"
+		error={$errors?.location?.details?.state?.[0] ?? null}
+		isRequired={true}
+	>
+		<input
+			type="text"
+			id="location-state"
+			name="location-state"
+			class={`${$errors?.location?.details?.state ? 'input-error' : 'input-default '} custom-input`}
+			bind:value={$formData.location.details.state}
+			aria-invalid={$errors?.location?.details?.state ? 'true' : undefined}
+			{...$constraints?.location?.details?.state}
+		/>
+	</SimpleFormItem>
+	<SimpleFormItem
+		inputId="location-postalCode"
+		label="Postal Code"
+		error={$errors?.location?.details?.postalCode?.[0] ?? null}
+		isRequired={true}
+	>
+		<input
+			type="text"
+			id="location-postalCode"
+			name="location-postalCode"
+			class={`${$errors?.location?.details?.postalCode ? 'input-error' : 'input-default '} custom-input`}
+			bind:value={$formData.location.details.postalCode}
+			aria-invalid={$errors?.location?.details?.postalCode ? 'true' : undefined}
+			{...$constraints?.location?.details?.postalCode}
+		/>
+	</SimpleFormItem>
+{/if}

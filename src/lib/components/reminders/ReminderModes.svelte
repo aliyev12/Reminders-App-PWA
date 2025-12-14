@@ -33,6 +33,7 @@
 	noneTxt="No reminder modes added yet"
 	label="Reminder modes"
 	inputName="reminders"
+	isRequired={true}
 	{handleOnClick}
 	isBeingAdded={reminderModesRune.alertIsBeingAdded || reminderModesRune.modeIsBeingAdded}
 >
