@@ -6,7 +6,6 @@
 	import ListItem from './ListItem.svelte';
 	import FormItemWrapper from './FormItemWrapper.svelte';
 	import Icon from '@iconify/svelte';
-	import { nanoid } from 'nanoid';
 	import FormItem from './FormItem.svelte';
 
 	type Props = {
@@ -15,8 +14,6 @@
 
 	const { superProps }: Props = $props();
 	const formData = $derived(superProps.form);
-	const errors = $derived(superProps.errors);
-	const constraints = $derived(superProps.constraints);
 
 	let currentLocation: TLocation = $state({
 		isSet: false,
@@ -30,14 +27,13 @@
 		}
 	});
 	const validationResult = $derived(LocationSchema.safeParse(currentLocation));
-	console.log(validationResult);
 	let isValid = $derived(validationResult.success);
 
-	let errorMsg = $derived.by(() => {
-		console.log('validationResult.error = ', validationResult.error?.issues);
-		const issue = validationResult.error?.issues[0];
-		return issue?.message;
-	});
+	function getErrMsgs() {
+		return validationResult.error?.issues
+			.map((x) => ({ [x.path[1]]: x.message }))
+			.reduce((cur, acc) => (acc = { ...acc, ...cur }), {});
+	}
 
 	const handleSave = () => {
 		if (isValid) {
@@ -79,22 +75,6 @@
 		// reminderModesRune.removeAlert(alertId);
 		// reminderModesRune.setAlertIsBeingAdded(false);
 	};
-
-	const fieldIsValid = $derived((fieldPath: string) => {
-		validationResult.error?.issues.forEach((issue) => {
-			if (issue.path.join('.') === fieldPath) {
-				console.log('issue.message = ', issue.message);
-				return {
-					isValid: false,
-					errorMsg: issue.message
-				};
-			}
-		});
-
-		return { isValid: true, errorMsg: '' };
-	});
-
-	const addressLine1Valid = $derived(fieldIsValid('details.addressLine1').isValid);
 </script>
 
 <FormItemWrapper {superProps} label="Set location" inputName="location">
@@ -125,15 +105,15 @@
 						id="addressLine1"
 						name="addressLine1"
 						disabled={false}
-						class={`custom-input ${!addressLine1Valid ? 'input-error' : 'input-default'}`}
+						class={`custom-input ${getErrMsgs()?.addressLine1 ? 'input-error' : 'input-default'}`}
 						bind:value={currentLocation.details.addressLine1}
 					/>
 				</label>
-				<!-- {#if .errorMsg}
+				{#if getErrMsgs()?.addressLine1}
 					<p class="mt-0 text-sm text-red-600" id="hs-validation-name-error-helper">
-						{addressLine1Validation.errorMsg}
+						{getErrMsgs()?.addressLine1}
 					</p>
-				{/if} -->
+				{/if}
 				<label>
 					Address line 2
 					<input
@@ -141,13 +121,29 @@
 						id="addressLine2"
 						name="addressLine2"
 						disabled={false}
-						class={`custom-input ${!fieldIsValid('details.addressLine2').isValid ? 'input-error' : 'input-default'}`}
+						class={`custom-input ${getErrMsgs()?.addressLine2 ? 'input-error' : 'input-default'}`}
 						bind:value={currentLocation.details.addressLine2}
 					/>
 				</label>
-				{#if fieldIsValid('details.addressLine2').errorMsg}
+				{#if getErrMsgs()?.addressLine2}
 					<p class="mt-0 text-sm text-red-600" id="hs-validation-name-error-helper">
-						{fieldIsValid('details.addressLine2').errorMsg}
+						{getErrMsgs()?.addressLine2}
+					</p>
+				{/if}
+				<label>
+					City
+					<input
+						type="text"
+						id="city"
+						name="city"
+						disabled={false}
+						class={`custom-input ${getErrMsgs()?.city ? 'input-error' : 'input-default'}`}
+						bind:value={currentLocation.details.city}
+					/>
+				</label>
+				{#if getErrMsgs()?.city}
+					<p class="mt-0 text-sm text-red-600" id="hs-validation-name-error-helper">
+						{getErrMsgs()?.city}
 					</p>
 				{/if}
 			</ListItem>

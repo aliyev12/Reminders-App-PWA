@@ -14,6 +14,7 @@
 	import Radios from '../inputs/Radios.svelte';
 	import FormItemWrapper from './FormItemWrapper.svelte';
 	import Checkboxes from '../inputs/Checkboxes.svelte';
+	import Checkbox from '../inputs/Checkbox.svelte';
 
 	export let superProps: SuperForm<TReminderBase>;
 	export let inputType: string | null = null;

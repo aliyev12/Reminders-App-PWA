@@ -8,6 +8,7 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
 	import Location from '$lib/components/reminders/Location.svelte';
+	import Location2 from '$lib/components/reminders/Location2.svelte';
 
 	type Props = { data: PageData };
 
@@ -68,7 +69,7 @@
 			<FormItem {superProps} inputName="date" label="Date" />
 		{/if}
 
-		<Location {superProps} />
+		<Location2 {superProps} />
 
 		<hr class="mt-5 border border-gray-400/40" />
 		<button

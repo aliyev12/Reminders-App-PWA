@@ -29,12 +29,16 @@ export const LocationSchema = z.object({
 		addressLine1: z
 			.string()
 			.min(1, 'Address Line 1 is required')
-			.describe('First line of the address'),
+			.describe('First line of the address')
+			.default(''),
 		addressLine2: z.string().optional().describe('Second line of the address'),
-		city: z.string().min(1, 'City is required').describe('City of the address'),
-		state: z.string().min(1, 'State is required').describe('State of the address'),
-		postalCode: z.string().min(1, 'Postal Code is required').describe('Postal code of the address'),
-		country: z.string().min(1, 'Country is required').describe('Country of the address')
+		city: z.string().min(1, 'City is required').describe('City of the address').default(''),
+		state: z.string().min(1, 'State is required').describe('State of the address').default(''),
+		postalCode: z
+			.string()
+			.min(1, 'Postal Code is required')
+			.describe('Postal code of the address')
+			.default('')
 	})
 });
 
@@ -47,22 +51,14 @@ export const ReminderBaseSchema = z.object({
 		.describe(
 			'Date of the reminder, it has to be using UTC format, for example: 2025-11-29T03:03:53Z'
 		),
-	location: LocationSchema.nullable().optional().default(null).describe('Location of the reminder'),
+	location: LocationSchema.describe('Location of the reminder'),
 	description: z.string().describe('Description of the reminder'),
 	reminders: z
 		.array(ReminderModeSchema)
-		// .nonempty('You must add at least one reminder mode')
 		.min(1, 'Need at least one reminder')
 		.describe('List of contact modes to use for the reminder'),
-	alerts: z
-		.array(AlertSchema)
-		// .default([1000])
-		.describe('List of alert times in milliseconds before the reminder'),
-	is_recurring: z
-		.boolean()
-		// .default(false)
-		.optional()
-		.describe('Indicates if the reminder is recurring'),
+	alerts: z.array(AlertSchema).describe('List of alert times in milliseconds before the reminder'),
+	is_recurring: z.boolean().optional().describe('Indicates if the reminder is recurring'),
 	recurrence: z
 		.string()
 		.nullable()
